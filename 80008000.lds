@@ -4,12 +4,6 @@ SECTIONS {
   "etext" = . ;
   "textEnd" = . ;
   .rodata : { *(.rodata) }
-   . = ALIGN(4);
-   .zPic : {
-      LONG(SIZEOF(.zPic)-4);
-      zPicStart = .;
-      *(.zPic)
-   }
   . = ALIGN(0x20);
   .data : { *(.data) *(.rodata ) }
   "data" = ADDR( .data );

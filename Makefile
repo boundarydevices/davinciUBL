@@ -27,11 +27,3 @@ all: ${BINARIES}
 clean:
 	rm -f ${BINARIES} *.o *.lst *.o2
 
-
-
-
-
-
-
-
-

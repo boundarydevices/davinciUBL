@@ -14,6 +14,14 @@
 #include "davinci.inc"
 ///////////////////////////////////////////////////////////
 	.global _start
+ubl_header:
+	.word	UBL_MAGIC_SAFE
+	.word	0x100		//entry_point
+	.word	(program_end - _start + ((1 << COLUMN_BITS) - 1)) >> COLUMN_BITS	//page_cnt
+	.word	1		//start_block
+	.word	1		//start_page
+	.balignl 2048, 0xffffffff
+
 _start:
 	.rept ((0x100-0x20)/4)
 	nop
@@ -300,3 +308,5 @@ ReceiveX:
 	mov		r0,#0
 	mov		pc,lr			//return
 
+program_end:
+	.balignl 2048, 0xffffffff

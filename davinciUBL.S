@@ -11,6 +11,7 @@
 	.equiv	NAND_BUS_WIDTH, 8	//Choices are 8 or 16
 	.equiv	DDR_BANKS, 8		//Choices are 4(128MB) or 8(256MB)
 	.equiv	DDR_SPEED, 162		//Choices are 148, 162 or 196
+
 #include "davinci.inc"
 ///////////////////////////////////////////////////////////
 	.global _start
@@ -37,6 +38,8 @@ _start:
 #define rGP		r8
 #define rPage	r9
 #define rECC	r10
+#define rCopy	r11
+#define numCopies	5
 #define rStart	fp
 #define rMem	ip
 
@@ -50,12 +53,16 @@ _start:
 	.endif
 	NandInit rEMIF,rGP
 
+	mov		rCopy,#0
+again:
 	BigMov		rMem,TEXT_BASE
+
 //load blocks starting with block 6, page 0
 //skip pages with uncorrectable ecc errors
 
 	mov		rSequence,#0
-	mov		rPage,#6<<PAGE_BITS	//start on block 6 page 0, this is a page counter
+	mov		rPage,rCopy,LSL #8			// 256 pages == 512K
+	add		rPage,rPage,#6<<PAGE_BITS	//start on block 6 page 0, this is a page counter
 	bl		LoadPage
 	bne		40f
 	sub		r3,rMem,#PAGE_INC
@@ -84,6 +91,12 @@ _start:
 
 40:
 	bl		PrintSequenceError
+retry:
+	add		rCopy,rCopy,#1
+	mov		r0,#numCopies
+	cmp		rCopy,r0
+	blo		again
+
 xagain:
 	BigMov		ip,TEXT_BASE
 	xmodemReceive r3,r4,r5,r6,r7,r9,sl,fp,ip,TransmitX,ReceiveX
@@ -99,7 +112,8 @@ Success:
 
 NotHeader:
 	adr		r2,MagicError
-	b		1b
+	bl		PrintStr
+	b		retry
 
 PrintStartMessage:
 	adr		r2,UBL_Starting

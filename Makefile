@@ -20,7 +20,7 @@ EXES		:= camera_to_fb2 devregs
 	@echo "=== converting to binary:" $@
 	@${OBJCOPY} -O binary --gap-fill 0xff $< $@
 
-BINARIES=davinciUBL.bin
+BINARIES=davinciUBL.bin davinciBurnUBL.bin
 
 all: ${BINARIES}
 

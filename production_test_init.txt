@@ -1,0 +1,204 @@
+if test "x$panel" = "xhitachi_hvga" ; then
+        lecho "proper panel selected" ;
+else
+        lcdp hitachi_hvga ;
+        savee ;
+fi
+        
+if fatload mmc 0 80008000 logo*.bmp ; then
+	bmp display 80008000 ;
+fi        
+lecho && lecho $version
+
+setenv blocksize 0x20000
+mw.b 0x82000000 0xff $blocksize
+if fatload mmc 0 82000000 davinciUBL* ; then
+	echo "Read 0x$filesize bytes of UBL" ;
+	lecho "\c check UBL:"
+	setenv offset 0x20000
+	setenv blocknum 1
+	nand read.ubl 0x82100000 $offset $filesize ;
+	mw.l 0x8200000c $blocknum
+	lecho "\\c $blocknum"
+	if cmp.b 0x82100000 0x82000000 $filesize ; then
+		echo "UBL copy $blocknum matched" ;
+	else
+		lecho "\\c!"
+		nand erase $offset $blocksize ;
+		nand write.ubl 0x82000000 $offset $blocksize ;
+		echo "UBL copy $blocknum updated" ;
+	fi
+
+	setenv offset 0x40000
+	setenv blocknum 2
+	nand read.ubl 0x82100000 $offset $filesize ;
+	mw.l 0x8200000c $blocknum
+	lecho "\\c $blocknum"
+	if cmp.b 0x82100000 0x82000000 $filesize ; then
+		echo "UBL copy $blocknum matched" ;
+	else
+		lecho "\\c!"
+		nand erase $offset $blocksize ;
+		nand write.ubl 0x82000000 $offset $blocksize ;
+		echo "UBL copy $blocknum updated" ;
+	fi
+	
+	setenv offset 0x60000
+	setenv blocknum 3
+	nand read.ubl 0x82100000 $offset $filesize ;
+	mw.l 0x8200000c $blocknum
+	lecho "\\c $blocknum"
+	if cmp.b 0x82100000 0x82000000 $filesize ; then
+		echo "UBL copy $blocknum matched" ;
+	else
+		lecho "\\c!"
+		nand erase $offset $blocksize ;
+		nand write.ubl 0x82000000 $offset $blocksize ;
+		echo "UBL copy $blocknum updated" ;
+	fi
+	
+	setenv offset 0x80000
+	setenv blocknum 4
+	nand read.ubl 0x82100000 $offset $filesize ;
+	mw.l 0x8200000c $blocknum
+	lecho "\\c $blocknum"
+	if cmp.b 0x82100000 0x82000000 $filesize ; then
+		echo "UBL copy $blocknum matched" ;
+	else
+		lecho "\\c!"
+		nand erase $offset $blocksize ;
+		nand write.ubl 0x82000000 $offset $blocksize ;
+		echo "UBL copy $blocknum updated" ;
+	fi
+	
+	setenv offset 0xA0000
+	setenv blocknum 5
+	nand read.ubl 0x82100000 $offset $filesize ;
+	mw.l 0x8200000c $blocknum
+	lecho "\\c $blocknum"
+	if cmp.b 0x82100000 0x82000000 $filesize ; then
+		echo "UBL copy $blocknum matched" ;
+	else
+		lecho "\\c!"
+		nand erase $offset $blocksize ;
+		nand write.ubl 0x82000000 $offset $blocksize ;
+		echo "UBL copy $blocknum updated" ;
+	fi
+	lecho
+else
+	echo "No UBL found" ;
+fi
+setenv blocksize
+setenv blocknum
+setenv offset
+
+if fatload mmc 0 82000000 u-boot-xenon*.bin ; then
+        echo "u-boot loaded from $filename: $filesize bytes\n" ;
+	lecho "\c check U-Boot:"
+        setenv updated
+	setenv copy 1
+	setenv offset 0xc0000
+	lecho "\\c $copy"
+        if nand read.seq 0x82400000 $offset 0x$filesize &&
+           cmp.b 0x82000000 0x82400000 $filesize ; then
+                echo "U-Boot copy $copy matched" ;
+        else
+                lecho "\\c!" ;
+                nand erase $offset $filesize ;
+                nand write.seq 82000000 $offset $filesize ;
+		setenv updated 1
+        fi
+	
+	setenv copy 2
+	setenv offset 0x140000
+	lecho "\\c $copy"
+        if nand read.seq 0x82400000 $offset 0x$filesize &&
+           cmp.b 0x82000000 0x82400000 $filesize ; then
+                echo "U-Boot copy $copy matched" ;
+        else
+                lecho "\\c!" ;
+                nand erase $offset $filesize ;
+                nand write.seq 82000000 $offset $filesize ;
+		setenv updated 1
+        fi
+	
+	setenv copy 3
+	setenv offset 0x1c0000
+	lecho "\\c $copy"
+        if nand read.seq 0x82400000 $offset 0x$filesize &&
+           cmp.b 0x82000000 0x82400000 $filesize ; then
+                echo "U-Boot copy $copy matched" ;
+        else
+                lecho "\\c!" ;
+                nand erase $offset $filesize ;
+                nand write.seq 82000000 $offset $filesize ;
+		setenv updated 1
+        fi
+	
+	setenv copy 4
+	setenv offset 0x240000
+	lecho "\\c $copy"
+        if nand read.seq 0x82400000 $offset 0x$filesize &&
+           cmp.b 0x82000000 0x82400000 $filesize ; then
+                echo "U-Boot copy $copy matched" ;
+        else
+                lecho "\\c!" ;
+                nand erase $offset $filesize ;
+                nand write.seq 82000000 $offset $filesize ;
+		setenv updated 1
+        fi
+	
+	setenv copy 5
+	setenv offset 0x2c0000
+	lecho "\\c $copy"
+        if nand read.seq 0x82400000 $offset 0x$filesize &&
+           cmp.b 0x82000000 0x82400000 $filesize ; then
+                echo "U-Boot copy $copy matched" ;
+        else
+                lecho "\\c!" ;
+                nand erase $offset $filesize ;
+                nand write.seq 82000000 $offset $filesize ;
+		setenv updated 1
+        fi
+	
+	if test -n "$updated" ; then
+		reset
+	fi
+fi        
+setenv updated
+setenv copy
+setenv offset
+setenv filesize
+
+if mac ; then
+        echo "mac address programmed" ;
+        lecho "mac $ethaddr" ;
+else
+        echo "No mac programmed!!!" ;
+        lecho "No mac programmed" ;
+        exit ;
+fi
+
+if fatload mmc 0 80800000 uImage ; then
+        lecho 'load initrd'
+	if fatload mmc 0 81000000 mmcinitrd* ; then
+		lecho "Booting Linux"
+                setenv bootargs "mem=64M console=ttyS0,115200n8 root=/dev/ram0 "
+                setenv bootargs $bootargs "video=dm64xxfb:output=lcd:fbMemBase=64M "
+                setenv bootargs $bootargs "dav-dma=pool=0x400000"
+                setenv bootargs $bootargs "mtdparts=davinci_nand.0:128k(params),640k(spare0),1280k(uboot),-(yaffs)"
+		setenv bootargs $bootargs "eth=$ethaddr"
+                setenv bootargs $bootargs "mmc=bits:4"
+                setenv bootargs $bootargs "pic-ts=pudelay:$pudelay"
+		bootm 80800000 81000000
+        fi
+        lecho 'failed to load initrd' ;
+else
+	echo "No Linux kernel" ;
+fi        
+lecho 'No Linux, try CE'
+if fatload mmc 0 80010000 nk*.nb0 ; then
+	go 80010000 ;
+else
+	echo "No WinCE image" ;
+fi

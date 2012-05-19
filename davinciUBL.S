@@ -38,10 +38,9 @@ _start:
 #define rGP		r8
 #define rPage	r9
 #define rECC	r10
-#define rCopy	r11
-#define numCopies	5
 #define rStart	fp
 #define rMem	ip
+#define numCopies	5
 
 	InitUART	r0,r1,UART_BASE,BAUDRATE
 	bl	PrintStartMessage
@@ -53,7 +52,7 @@ _start:
 	.endif
 	NandInit rEMIF,rGP
 
-	mov		rCopy,#0
+	mov		rPage,#0
 again:
 	BigMov		rMem,TEXT_BASE
 
@@ -61,7 +60,6 @@ again:
 //skip pages with uncorrectable ecc errors
 
 	mov		rSequence,#0
-	mov		rPage,rCopy,LSL #8			// 256 pages == 512K
 	add		rPage,rPage,#6<<PAGE_BITS	//start on block 6 page 0, this is a page counter
 	bl		LoadPage
 	bne		40f
@@ -92,9 +90,12 @@ again:
 40:
 	bl		PrintSequenceError
 retry:
-	add		rCopy,rCopy,#1
-	mov		r0,#numCopies
-	cmp		rCopy,r0
+/* Round up to next 512k boundary */
+	sub		rPage,rPage,#(6 << PAGE_BITS)
+	sub		rPage,rPage,#1
+	orr		rPage,rPage,#(1 << (19 - COLUMN_BITS))-1	//512k bytes / 2048 bytes/page = 2**19 / 2**11 pages = 2**8 pages
+	add		rPage,rPage,#1
+	cmp		rPage, #numCopies << (19 - COLUMN_BITS)
 	blo		again
 
 xagain:

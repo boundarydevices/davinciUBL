@@ -365,7 +365,7 @@
 					// 648/2 = 324 Mhz, 324/2 = 162 Mhz
 	.else
 	.if (DDR_SPEED==148)
-	mov     r2, $21-1		// 27*21 = 567 MHz
+	mov     r2, $22-1		// 27*22 = 594 MHz
 	mov     r1, $(11-1)|((2-1)<<4)	// 594/11 = 54 MHz
 					// 594/2 = 297 Mhz, 297/2 = 148.5 Mhz
 	.else
@@ -585,7 +585,7 @@
 	str	r0, [r6,#_PLL1_CTL]
 
 	/* Program the PLL Multiplier */
-	mov	r1, $(21-1)	/* 27*21 = 567MHz */
+	mov	r1, $(22-1)	/* 27*22 = 594MHz */
 	str	r1, [r6,#_PLL1_PLLM]
 
 	/* Wait for PLL to Reset Properly */

@@ -1,6 +1,6 @@
 .PHONY : clean
 
-CROSS_COMPILE   := arm-v5t-linux-gnueabi-
+CROSS_COMPILE   ?= arm-v5t-linux-gnueabi-
 AS		:= ${CROSS_COMPILE}gcc
 OBJCOPY		:= ${CROSS_COMPILE}objcopy
 LD		:= ${CROSS_COMPILE}g++
@@ -19,6 +19,10 @@ EXES		:= camera_to_fb2 devregs
 %.bin: %.o2
 	@echo "=== converting to binary:" $@
 	@${OBJCOPY} -O binary --gap-fill 0xff $< $@
+
+davinciUBL.o: davinciUBL.S char.inc davinci.inc xmodemReceive.inc BigMacro.h
+
+davinciBurnUBL.o: davinciBurnUBL.S char.inc davinci.inc xmodemReceive.inc BigMacro.h
 
 BINARIES=davinciUBL.bin davinciBurnUBL.bin
 

@@ -685,11 +685,72 @@
 	b	90f
 
 	.ltorg
-/* DDR2 MMR & CONFIGURATION VALUES, 162 MHZ clock */
+/*
+ DDR2 MMR & CONFIGURATION VALUES, 162 MHZ clock
+For Micron MT47H64M16BT-37E @ 162 MHz
+ */
+#define DDR2_NM		0
+#define DDR2_CL		5
+#define DDR2_IBANK	3
+#define DDR2_PAGESIZE	2
+#define DDR2_RR		2317
+#define DDR2_READ_Latency	6
+#if 0
+//flash_utils/DM646x/Common/src/device.c settings
+#define DDR2_T_RFC	37
+#define DDR2_T_RP	4
+#define DDR2_T_RCD	4
+#define DDR2_T_WR	4
+#define DDR2_T_RAS	11
+#define DDR2_T_RC	16
+#define DDR2_T_RRD	2
+#define DDR2_T_WTR	2
+
+#define DDR2_T_RASMAX	7
+#define DDR2_T_XP	1
+#define DDR2_T_XSNR	40
+#define DDR2_T_XSRD	199
+#define DDR2_T_RTP	2
+#define DDR2_T_CKE	2
+
+#else
+//u-boot settings
+#define DDR2_T_RFC	20
+#define DDR2_T_RP	2
+#define DDR2_T_RCD	2
+#define DDR2_T_WR	2
+#define DDR2_T_RAS	6
+#define DDR2_T_RC	8
+#define DDR2_T_RRD	2
+#define DDR2_T_WTR	1
+
+#define DDR2_T_RASMAX	0
+#define DDR2_T_XP	0
+#define DDR2_T_XSNR	22
+#define DDR2_T_XSRD	199
+#define DDR2_T_RTP	1
+#define DDR2_T_CKE	2
+#endif
+
+#define DDR2_SDTIMR_VAL_162	(DDR2_T_RFC << 25) | \
+		                (DDR2_T_RP << 22)  | \
+		                (DDR2_T_RCD << 19) | \
+		                (DDR2_T_WR << 16)  | \
+		                (DDR2_T_RAS << 11) | \
+		                (DDR2_T_RC << 6)   | \
+		                (DDR2_T_RRD << 3)  | \
+		                (DDR2_T_WTR << 0)
+#define DDR2_SDTIMR2_VAL_162	(DDR2_T_RASMAX << 27) | \
+		                (DDR2_T_XP << 25 )    | \
+		                (DDR2_T_XSNR << 16)   | \
+		                (DDR2_T_XSRD << 8)    | \
+                		(DDR2_T_RTP << 5)     | \
+		                (DDR2_T_CKE << 0)
+
 SDTIM0_VAL_162MHz:
-	.word	0x28923211
+	.word	DDR2_SDTIMR_VAL_162		//0x4b245c12(flash_utils), 0x28923211(uboot)
 SDTIM1_VAL_162MHz:
-	.word	0x0016c722
+	.word	DDR2_SDTIMR2_VAL_162		//0x3a28c742(flash_utils), 0x0016c722(uboot)
 DUMMY_VAL:
 	.word	0xa55aa55a
 /* Works on Always On power domain only (no PD argument) */

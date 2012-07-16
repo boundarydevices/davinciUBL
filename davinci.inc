@@ -353,23 +353,42 @@
 	str	r0, [r6,#_DFT_ENABLE]
 #endif
 
-
+/*
+ * Advisory 1.1.6 says VCLK and MCLK should have 1:1 ratio
+ * since sysclk3 = VCLK = PLL1/3 then if
+ * ddr_speed is n, PLL1 (dsp) should be 3n
+ * 142(DDR Pll2) * 3 = 426(DSP Pll1)
+ * 148(DDR Pll2) * 3 = 444(DSP Pll1)
+ * 162(DDR Pll2) * 3 = 486(DSP Pll1)
+ * 189(DDR Pll2) * 3 = 567(DSP Pll1)
+ */
 	.if (DDR_SPEED==196)
+	.equiv	C_PLL1_MULT, 21		/* ((195.75 * 3) / 27)	= 21.75; 21 * 54 = 567 dsp */
+	.err            //Advisor 1.1.6 makes this unwise
 	mov	r2, $29-1		// 27*29 =  783 MHz (r2 has 5 bit number)
 	mov	r1, $(14-1)|((2-1)<<4)	// 783/14 = 55.9 MHz (r1 has 4 bit number)
 					// 783/2 = 391.5 Mhz, 391.5/2 = 195.75 Mhz (r2 has 4 bit number)
 	.else
+	.if (DDR_SPEED==189)
+	.equiv  C_PLL1_MULT, ((189 * 3) / 27)	/* 21, 567 dsp, 283.5 ARM*/
+	mov     r2, $28-1		// 27*28 = 756 MHz
+	mov     r1, $(14-1)|((2-1)<<4)	// 756/14 = 54 MHz
+					// 756/2 = 378 Mhz 378/2 = 189 Mhz
+	.else
 	.if (DDR_SPEED==162)
+	.equiv	C_PLL1_MULT, ((162 * 3) / 27)	/* 18, 486 dsp, 243 ARM */
 	mov     r2, $24-1		// 27*24 = 648 MHz
 	mov     r1, $(12-1)|((2-1)<<4)	// 648/12 = 54 MHz
 					// 648/2 = 324 Mhz, 324/2 = 162 Mhz
 	.else
-	.if (DDR_SPEED==148)
-	mov     r2, $22-1		// 27*22 = 594 MHz
-	mov     r1, $(11-1)|((2-1)<<4)	// 594/11 = 54 MHz
-					// 594/2 = 297 Mhz, 297/2 = 148.5 Mhz
+	.if (DDR_SPEED==135)
+	.equiv	C_PLL1_MULT, ((135 * 3) / 27)	/* 15, 405 dsp, 202.5 ARM */
+	mov     r2, $20-1		// 27*20 = 540 MHz
+	mov     r1, $(10-1)|((2-1)<<4)	// 540/10 = 54 MHz
+					// 540/2 = 270 Mhz, 270/2 = 135 Mhz
 	.else
 	.err            //Unknown DDR_SPEED
+	.endif
 	.endif
 	.endif
 	.endif
@@ -585,7 +604,7 @@
 	str	r0, [r6,#_PLL1_CTL]
 
 	/* Program the PLL Multiplier */
-	mov	r1, $(22-1)	/* 27*22 = 594MHz */
+	mov	r1, $C_PLL1_MULT - 1
 	str	r1, [r6,#_PLL1_PLLM]
 
 	/* Wait for PLL to Reset Properly */

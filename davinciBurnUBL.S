@@ -10,7 +10,7 @@
 	.equiv  BAUDRATE, 115200
 	.equiv	NAND_BUS_WIDTH, 8	//Choices are 8 or 16
 	.equiv	DDR_BANKS, 4		//Choices are 4(128MB) or 8(256MB)
-	.equiv	DDR_SPEED, 162		//Choices are 162 or 196
+	.equiv	DDR_SPEED, 189		//Choices are 135, 162 or 189
 #include "davinci.inc"
 ///////////////////////////////////////////////////////////
 	.global _start

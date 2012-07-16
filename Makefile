@@ -3,7 +3,7 @@
 CROSS_COMPILE   ?= arm-v5t-linux-gnueabi-
 AS		:= ${CROSS_COMPILE}gcc
 OBJCOPY		:= ${CROSS_COMPILE}objcopy
-LD		:= ${CROSS_COMPILE}g++
+LD		:= ${CROSS_COMPILE}ld
 ASFLAGS		:= -nostdlib -fno-strict-aliasing -fno-common -Os 
 
 EXES		:= camera_to_fb2 devregs
